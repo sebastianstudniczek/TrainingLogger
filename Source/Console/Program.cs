@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using StravaActivityExtractor.Core;
+using TrainingLogger.Infrastructure.Strava;
+using TrainingLogger.Core;
+using TrainingLogger.Infrastructure;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((ctx, services) =>
@@ -8,6 +10,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.Configure<StravaOptions>(
             ctx.Configuration.GetSection(StravaOptions.Strava));
 
-        services.AddCore();
+        services
+            .AddCore()
+            .AddInfrastructure();
     })
     .Build();
