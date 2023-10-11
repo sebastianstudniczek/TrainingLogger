@@ -1,17 +1,14 @@
 ﻿namespace TrainingLogger.Infrastructure.Strava;
 
-// TODO: Register this
-public class StravaOptions
+public record StravaOptions
 {
     public const string Strava = "Strava";
 
     public int ClientId { get; set; }
-    public string ClientSecret { get; set; } = string.Empty;
-    public string AuthorizationCode { get; set; } = string.Empty;
-    public string BaseUri { get; set; } = string.Empty;
-    public string GetTokenUri { get; set; } = string.Empty;
-    public string GetActivitiesUri { get; set; } = string.Empty;
-    public string GetActivityByIdUri { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
-    public string AccessToken { get; set; } = string.Empty;
+    public required string ClientSecret { get; set; } 
+    public required string AuthorizationCode { get; set; }
+    public required string BaseUri { get; set; }
+    public required string GetTokenUri { get; set; }
+    public required string GetActivitiesUri { get; set; }
+    public required string GetActivityByIdUri { get; set; }
 }

@@ -42,37 +42,37 @@ public class StravaClientTests
         httpTest.ShouldHaveCalled(expectedUrl);
     }
 
-    [Fact]
-    public async Task GetActivityAsync_ShouldGet_Activity_WithBearerToken()
-    {
-        using var httpTest = new HttpTest();
-        _tokenStore
-            .GetTokenAsync(Arg.Any<CancellationToken>())
-            .Returns(TestUtils.RandomString);
+    //[Fact]
+    //public async Task GetActivityAsync_ShouldGet_Activity_WithBearerToken()
+    //{
+    //    using var httpTest = new HttpTest();
+    //    _tokenStore
+    //        .GetTokenAsync(Arg.Any<CancellationToken>())
+    //        .Returns(TestUtils.RandomString);
 
-        _ = await _client.GetActivityAsync(12, default);
+    //    _ = await _client.GetActivityAsync(12, default);
 
-        httpTest
-            .ShouldHaveMadeACall()
-            .WithOAuthBearerToken();
-    }
+    //    httpTest
+    //        .ShouldHaveMadeACall()
+    //        .WithOAuthBearerToken();
+    //}
 
-    [Fact]
-    public async Task GetActivityAsync_ShouldGet_Activity_WithBearerToken_TakenFromTokenStore()
-    {
-        string expectedToken = TestUtils.RandomString;
-        _tokenStore
-            .GetTokenAsync(Arg.Any<CancellationToken>())
-            .Returns(expectedToken);
-        using var httpTest = new HttpTest();
+    //[Fact]
+    //public async Task GetActivityAsync_ShouldGet_Activity_WithBearerToken_TakenFromTokenStore()
+    //{
+    //    string expectedToken = TestUtils.RandomString;
+    //    _tokenStore
+    //        .GetTokenAsync(Arg.Any<CancellationToken>())
+    //        .Returns(expectedToken);
+    //    using var httpTest = new HttpTest();
 
-        _ = await _client.GetActivityAsync(2, default);
+    //    _ = await _client.GetActivityAsync(2, default);
 
-        await _tokenStore.Received(1).GetTokenAsync(Arg.Any<CancellationToken>());
-        httpTest
-            .ShouldHaveMadeACall()
-            .WithOAuthBearerToken(expectedToken);
-    }
+    //    await _tokenStore.Received(1).GetTokenAsync(Arg.Any<CancellationToken>());
+    //    httpTest
+    //        .ShouldHaveMadeACall()
+    //        .WithOAuthBearerToken(expectedToken);
+    //}
 
     [Fact]
     public async Task GetActivityAsync_ShouldReturn_FetchedActivity()

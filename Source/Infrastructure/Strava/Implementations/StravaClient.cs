@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using TrainingLogger.Core.Models;
-using TrainingLogger.Core.Services;
 using Flurl;
 using Flurl.Http;
+using TrainingLogger.Core.Contracts;
+using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
@@ -19,7 +20,7 @@ internal sealed class StravaClient : IStravaClient
 
     public async Task<Activity> GetActivityAsync(long id, CancellationToken cancellationToken)
     {
-        string jwtToken = await _tokenStore.GetTokenAsync(cancellationToken);
+        string jwtToken = await _tokenStore.GetTokenAsync(GetTokenAsync, cancellationToken);
 
         return await _options.BaseUri
             .AppendPathSegment(string.Format(_options.GetActivityByIdUri, id))
@@ -29,11 +30,16 @@ internal sealed class StravaClient : IStravaClient
 
     public async Task<IReadOnlyCollection<ActivitySummary>> GetActivitySummariesAsync(CancellationToken cancellationToken)
     {
-        string jwtToken = await _tokenStore.GetTokenAsync(cancellationToken);
+        string jwtToken = await _tokenStore.GetTokenAsync(GetTokenAsync, cancellationToken);
 
         return await _options.BaseUri
             .AppendPathSegment(_options.GetActivitiesUri)
             .WithOAuthBearerToken(jwtToken)
             .GetJsonAsync<IReadOnlyList<ActivitySummary>>(cancellationToken);
+    }
+
+    private Task<ApiAccessToken> GetTokenAsync(string refreshToken)
+    {
+        return Task.FromResult(new ApiAccessToken());
     }
 }

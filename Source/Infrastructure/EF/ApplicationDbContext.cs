@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using TrainingLogger.Core.Contracts;
+using TrainingLogger.Core.Models;
 using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.EF;

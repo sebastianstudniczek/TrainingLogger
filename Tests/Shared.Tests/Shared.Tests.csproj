@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 		<IsTestProject>false</IsTestProject>
+		<RootNamespace>TrainingLogger.Shared.Tests</RootNamespace>
+		<AssemblyName>TrainingLogger.Shared.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

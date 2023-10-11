@@ -12,6 +12,6 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services
             .AddCore()
-            .AddInfrastructure();
+            .AddInfrastructure(ctx.Configuration);
     })
     .Build();
