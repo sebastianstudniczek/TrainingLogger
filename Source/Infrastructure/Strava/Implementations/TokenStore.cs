@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System.Runtime.CompilerServices;
 using TrainingLogger.Core.Models;
 using TrainingLogger.Core.Services;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava.Exceptions;
-using TrainingLogger.Infrastructure.Strava.Models;
+using TrainingLogger.Infrastructure.Strava.Interfaces;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
@@ -16,7 +15,7 @@ internal sealed class TokenStore : ITokenStore
     private readonly GetUtcNow _getUtcNow;
 
     public TokenStore(
-        ApplicationDbContext dbContext, 
+        ApplicationDbContext dbContext,
         IMemoryCache cache,
         GetUtcNow getUtcNow)
     {
@@ -25,42 +24,45 @@ internal sealed class TokenStore : ITokenStore
         _getUtcNow = getUtcNow;
     }
 
-    public async Task<string> GetTokenAsync(Func<string, Task<ApiAccessToken>> fetchToken, CancellationToken token)
+    public async Task<string> GetTokenAsync(GetRefreshedToken fetchNewToken, CancellationToken cancellationToken)
     {
-        if (!_cache.TryGetValue(nameof(ApiAccessToken), out ApiAccessToken? cachedToken))
-        {
-            var newTokenTe = await RefreshTokenAsync(fetchToken, token);
-            return newTokenTe.AccessToken;
-        }
+        long unixTimeSeconds = _getUtcNow().ToUnixTimeSeconds();
+        var tokenFactory = GetTokenFactory(fetchNewToken, unixTimeSeconds, cancellationToken);
+        var token = await _cache.GetOrCreateAsync(nameof(ApiAccessToken), tokenFactory);
 
-        DateTimeOffset now = _getUtcNow();
-        bool isExpired = cachedToken!.ExpiresAt < now.ToUnixTimeSeconds();
-
-        if (!isExpired)
-        {
-            return cachedToken.AccessToken;
-        }
-
-        var newToken = await RefreshTokenAsync(fetchToken, token);
-        await _dbContext.RefreshTokens.ExecuteUpdateAsync(setters =>
-            setters
-                .SetProperty(x => x.AccessToken, newToken.AccessToken)
-                .SetProperty(x => x.AccessToken, newToken.RefreshToken)
-                .SetProperty(x => x.ExpiresIn, newToken.ExpiresIn)
-                .SetProperty(x => x.ExpiresAt, newToken.ExpiresAt),
-            token);
-
-        return newToken.AccessToken;
+        return token is null
+            ? throw new StravaAuthTokenNotFound()
+            : token.AccessToken;
     }
 
-    private async Task<ApiAccessToken> RefreshTokenAsync(Func<string, Task<ApiAccessToken>> fetchToken, CancellationToken token)
-    {
-        var accessToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(token)
-            ?? throw new StravaAuthTokenNotFound();
+    private Func<ICacheEntry, Task<ApiAccessToken?>> GetTokenFactory(GetRefreshedToken fetchNewToken, long unixTimeSeconds, CancellationToken cancellationToken) =>
+        async (cacheEntry) =>
+        {
+            var savedToken = await _dbContext
+                .RefreshTokens
+                .FirstOrDefaultAsync(cancellationToken);
 
-        var newToken = await fetchToken(accessToken.RefreshToken);
-        _cache.Set(nameof(ApiAccessToken), newToken);
+            if (savedToken is null)
+            {
+                cacheEntry.Dispose();
+                return null;
+            }
 
-        return newToken;
-    }
+            if (savedToken.ExpiresAt > unixTimeSeconds)
+            {
+                return savedToken;
+            }
+
+            var refreshedToken = await fetchNewToken(savedToken.RefreshToken);
+            await _dbContext
+                .RefreshTokens
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.AccessToken, refreshedToken.AccessToken)
+                    .SetProperty(x => x.RefreshToken, refreshedToken.RefreshToken)
+                    .SetProperty(x => x.ExpiresIn, refreshedToken.ExpiresIn)
+                    .SetProperty(x => x.ExpiresAt, refreshedToken.ExpiresAt),
+                    cancellationToken);
+
+            return refreshedToken;
+        };
 }

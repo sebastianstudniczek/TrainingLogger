@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava;
+using TrainingLogger.Infrastructure.Strava.Implementations;
+using TrainingLogger.Infrastructure.Strava.Interfaces;
 
 namespace TrainingLogger.Infrastructure;
 
@@ -14,6 +16,8 @@ public static class Extensions
         services.Configure<StravaWebhookOptions>(configuration.GetSection(StravaWebhookOptions.StravaWebhook));
 
         services.AddMemoryCache();
+        services.AddHttpClient();
+        services.AddScoped<ITokenStore, TokenStore>();
         var connectionString = configuration.GetConnectionString("Sqlite");
 
         if (connectionString is null)
