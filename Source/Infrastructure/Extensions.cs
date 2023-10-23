@@ -16,8 +16,13 @@ public static class Extensions
         services.Configure<StravaWebhookOptions>(configuration.GetSection(StravaWebhookOptions.StravaWebhook));
 
         services.AddMemoryCache();
-        services.AddHttpClient();
         services.AddScoped<ITokenStore, TokenStore>();
+        services.AddHttpClient<ITokenContext, TokenContext>((IServiceProvider sp, HttpClient client) =>
+        {
+            var stravaOptions = sp.GetRequiredService<StravaOptions>();
+            client.BaseAddress = new Uri(stravaOptions.BaseUri);
+        });
+
         var connectionString = configuration.GetConnectionString("Sqlite");
 
         if (connectionString is null)
