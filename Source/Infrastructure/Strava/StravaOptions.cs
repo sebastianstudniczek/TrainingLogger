@@ -1,6 +1,6 @@
 ﻿namespace TrainingLogger.Infrastructure.Strava;
 
-public record StravaOptions
+public sealed class StravaOptions
 {
     public const string Strava = "Strava";
 
