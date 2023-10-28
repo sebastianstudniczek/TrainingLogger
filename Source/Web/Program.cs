@@ -2,6 +2,7 @@ using Serilog;
 using TrainingLogger.Core;
 using TrainingLogger.Infrastructure;
 using TrainingLogger.Web;
+using TrainingLogger.Web.Endpoints;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -26,8 +27,7 @@ try
     var app = builder.Build();
     app.UseHttpLogging();
 
-    app.MapGet("/strava-webhook", Endpoints.ValidateSubscription);
-    app.MapPost("/strava-webhook", Endpoints.PostEvent);
+    app.MapEndpoints();
 
     app.UseHttpsRedirection();
     app.UseSerilogRequestLogging();
