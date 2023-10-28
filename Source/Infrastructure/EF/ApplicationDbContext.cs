@@ -2,7 +2,6 @@
 using System.Reflection;
 using TrainingLogger.Core.Contracts;
 using TrainingLogger.Core.Models;
-using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.EF;
 
@@ -13,6 +12,7 @@ internal sealed class ApplicationDbContext : DbContext, IApplicationDbContext
     }
 
     public DbSet<ApiAccessToken> RefreshTokens { get; set; }
+    public DbSet<Activity> Activities => Set<Activity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

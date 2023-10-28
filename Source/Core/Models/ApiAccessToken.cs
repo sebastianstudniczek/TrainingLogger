@@ -1,5 +1,5 @@
 ﻿namespace TrainingLogger.Core.Models;
-
+// TODO: Should it be here? (Infrastructure)
 public class ApiAccessToken
 {
     public Guid Id { get; set; }
