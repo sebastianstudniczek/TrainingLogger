@@ -20,7 +20,7 @@ public class ActivityPublishedNotificationHandlerTests {
         _fixture.Inject(_activitiesClient);
         var handler = _fixture.Create<ActivityPublishedNotificationHandler>();
 
-        await handler.Handle(notification, default);
+        await handler.HandleAsync(notification, default);
 
         await _activitiesClient
             .Received()
@@ -38,7 +38,7 @@ public class ActivityPublishedNotificationHandlerTests {
         _fixture.Inject(_activitiesClient);
         var handler = _fixture.Create<ActivityPublishedNotificationHandler>();
 
-        await handler.Handle(notification, default);
+        await handler.HandleAsync(notification, default);
 
         _dbContext
             .Activities

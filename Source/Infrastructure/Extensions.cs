@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
 using Shared;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Notifications;
@@ -44,13 +46,18 @@ public static class Extensions
         services.AddScoped<ITokenStore, TokenStore>();
         services.AddScoped<TokenHandler>();
 
-        services.AddHttpClient(stravaOptions.HttpClientName, (IServiceProvider sp, HttpClient client) =>
+        services.AddHttpClient(stravaOptions.HttpClientName, (IServiceProvider _, HttpClient client) =>
         {
-            var stravaOptions = sp.GetRequiredService<StravaOptions>();
             client.BaseAddress = new Uri(stravaOptions.BaseUri);
         })
-            .AddHttpMessageHandler<TokenHandler>();
+            .AddHttpMessageHandler<TokenHandler>()
+            .AddPolicyHandler(GetRetryPolicy());
 
         return services;
     }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy() =>
+        HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .WaitAndRetryAsync(3, retryAttemp => TimeSpan.FromSeconds(Math.Pow(2, retryAttemp)));
 }

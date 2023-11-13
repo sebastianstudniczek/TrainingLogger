@@ -3,6 +3,7 @@ using Flurl;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
+using TrainingLogger.Core.DTOs;
 using TrainingLogger.Core.Models;
 using TrainingLogger.Infrastructure.Strava;
 using TrainingLogger.Infrastructure.Strava.Implementations;
@@ -19,7 +20,7 @@ public class ActivitiesClientTests
     [Fact]
     public async Task GetActivityById_ShouldGet_StravaHttpClient()
     {
-        var activity = _fixture.Create<Activity>();
+        var activity = _fixture.Create<ActivityDto>();
         var httpResponse = JsonContent.Create(activity);
         var messageHandler = new MockHttpMessageHandler(
             HttpStatusCode.OK,
@@ -52,13 +53,16 @@ public class ActivitiesClientTests
         var sampleOptions = _optionsFaker.Generate();
         _options.Value.Returns(sampleOptions);
         _fixture.Inject(_options);
-        var fixture = _fixture.Create<Activity>();
-        ulong activityId = fixture.Id;
+        var activity = _fixture.Create<ActivityDto>();
+        var responseContent = JsonContent.Create(activity);
+        ulong activityId = activity.Id;
         var expectedUri = Url
             .Combine(sampleOptions.BaseUri, sampleOptions.GetActivityByIdUri)
             .AppendPathSegment(activityId)
             .ToUri();
-        var messageHandler = new MockHttpMessageHandler();
+        var messageHandler = new MockHttpMessageHandler(
+            HttpStatusCode.OK,
+            responseContent);
         var sampleHttpClient = new HttpClient(messageHandler)
         {
             BaseAddress = new Uri(sampleOptions.BaseUri)

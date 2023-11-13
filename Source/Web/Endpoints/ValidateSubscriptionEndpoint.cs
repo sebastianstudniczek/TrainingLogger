@@ -13,9 +13,9 @@ public class ValidateSubscriptionEndpoint : IEndpoint
 
     public static IResult ValidateSubscription(
         SubscriptionValidationRequest request,
-        [FromServices] IOptions<StravaWebhookOptions> webhookOptions)
+        [FromServices] IOptions<StravaOptions> stravaOptions)
     {
-        if (request.Mode != Consts.SubscribeMode || request.Token != webhookOptions.Value.VerifyToken)
+        if (request.Mode != Consts.SubscribeMode || request.Token != stravaOptions.Value.WebhookVerifyToken)
         {
             return Results.Forbid();
         }
