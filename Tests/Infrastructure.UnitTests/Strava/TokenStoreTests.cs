@@ -1,14 +1,14 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data.Common;
-using TrainingLogger.Core.Models;
 using TrainingLogger.Core.Services;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava.Exceptions;
 using TrainingLogger.Infrastructure.Strava.Implementations;
 using TrainingLogger.Infrastructure.Strava.Interfaces;
+using TrainingLogger.Infrastructure.Strava.Models;
 
-namespace TrainingLogger.Infrastructure.UnitTests;
+namespace TrainingLogger.Infrastructure.UnitTests.Strava;
 
 public class TokenStoreTests : IDisposable
 {
@@ -25,17 +25,18 @@ public class TokenStoreTests : IDisposable
         _sqliteConnection = new SqliteConnection(Utils.SqliteInMemoryConnectionString);
         _sqliteConnection.Open();
         _dbContext = Utils.CreateInMemoryContext(_sqliteConnection);
+        var token = _fixture.Create<ApiAccessToken>();
         _refreshToken
             .Invoke(Arg.Any<string>())
-            .Returns(new ApiAccessToken());
+            .Returns(token);
 
-        _store = new TokenStore(_dbContext, _memoryCache, _getUtcNow);
+        _store = new TokenStore(_dbContext, _memoryCache, _getUtcNow, _refreshToken);
     }
 
     [Fact]
     public async Task ShouldThrow_StravaAuthTokenNotFound_WhenThereIsNoTokenSaved_InDatabase()
     {
-        var act = async () => await _store.GetTokenAsync(_refreshToken, default);
+        var act = async () => await _store.GetTokenAsync(default);
 
         await act.Should().ThrowAsync<StravaAuthTokenNotFound>();
     }
@@ -47,7 +48,7 @@ public class TokenStoreTests : IDisposable
         _dbContext.RefreshTokens.Add(savedToken);
         _dbContext.SaveChanges();
 
-        var act = async () => await _store.GetTokenAsync(_refreshToken, default);
+        var act = async () => await _store.GetTokenAsync(default);
 
         await act.Should().NotThrowAsync<StravaAuthTokenNotFound>();
     }
@@ -65,7 +66,7 @@ public class TokenStoreTests : IDisposable
         _dbContext.RefreshTokens.Add(savedToken);
         _dbContext.SaveChanges();
 
-        string actualToken = await _store.GetTokenAsync(_refreshToken, default);
+        string actualToken = await _store.GetTokenAsync(default);
 
         actualToken.Should().BeEquivalentTo(savedToken.AccessToken);
     }
@@ -87,7 +88,7 @@ public class TokenStoreTests : IDisposable
             .Invoke(Arg.Any<string>())
             .Returns(refreshedToken);
 
-        _ = await _store.GetTokenAsync(_refreshToken, default);
+        _ = await _store.GetTokenAsync(default);
 
         await _refreshToken
             .Received()
@@ -111,7 +112,7 @@ public class TokenStoreTests : IDisposable
             .Invoke(Arg.Any<string>())
             .Returns(refreshedToken);
 
-        _ = await _store.GetTokenAsync(_refreshToken, default);
+        _ = await _store.GetTokenAsync(default);
 
         var replacedToken = _dbContext
             .RefreshTokens
@@ -132,12 +133,12 @@ public class TokenStoreTests : IDisposable
             .Create();
         _dbContext.RefreshTokens.Add(tokenToCache);
         _dbContext.SaveChanges();
-        var  refreshedToken = _fixture.Create<ApiAccessToken>();
+        var refreshedToken = _fixture.Create<ApiAccessToken>();
         _refreshToken
             .Invoke(Arg.Any<string>())
             .Returns(refreshedToken);
 
-        string actualToken = await _store.GetTokenAsync(_refreshToken, default);
+        string actualToken = await _store.GetTokenAsync(default);
 
         actualToken.Should().BeEquivalentTo(refreshedToken.AccessToken);
     }
