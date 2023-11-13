@@ -9,7 +9,7 @@ using TrainingLogger.Infrastructure.Strava.Implementations;
 
 namespace TrainingLogger.Infrastructure.UnitTests.Strava;
 
-public class ClientTests
+public class ActivitiesClientTests
 {
     private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
     private readonly IOptions<StravaOptions> _options = Substitute.For<IOptions<StravaOptions>>();
