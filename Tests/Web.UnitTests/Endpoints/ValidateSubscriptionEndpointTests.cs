@@ -8,7 +8,7 @@ namespace TrainingLogger.Web.UnitTests.Endpoints;
 
 public class ValidateSubscriptionEndpointTests
 {
-    private readonly IFixture _fixture = new Fixture();
+    private readonly Fixture _fixture = new();
 
     [Fact]
     public void ShouldReturn_ForbiddenResult_IfRequestMode_IsNotSubscription()

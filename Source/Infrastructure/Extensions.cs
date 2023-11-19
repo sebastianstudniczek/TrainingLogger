@@ -38,6 +38,7 @@ public static class Extensions
 
     private static IServiceCollection AddStrava(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddOptionsWithValidateOnStart<StravaOptions>();
         var stravaSection = configuration.GetSection(StravaOptions.Strava);
         var stravaOptions = stravaSection.BindOptions<StravaOptions>();
         services.Configure<StravaOptions>(stravaSection);
@@ -59,5 +60,5 @@ public static class Extensions
     private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy() =>
         HttpPolicyExtensions
             .HandleTransientHttpError()
-            .WaitAndRetryAsync(3, retryAttemp => TimeSpan.FromSeconds(Math.Pow(2, retryAttemp)));
+            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 }
