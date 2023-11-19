@@ -4,11 +4,14 @@ public sealed class StravaOptions
 {
     public const string Strava = "Strava";
 
+    public string AuthScheme { get; set; } = default!;
+    public string HttpClientName { get; set; } = default!;
     public int ClientId { get; set; }
-    public required string ClientSecret { get; set; } 
-    public required string AuthorizationCode { get; set; }
-    public required string BaseUri { get; set; }
-    public required string GetTokenUri { get; set; }
-    public required string GetActivitiesUri { get; set; }
-    public required string GetActivityByIdUri { get; set; }
+    public string ClientSecret { get; set; } = default!;
+    public string AuthorizationCode { get; set; } = default!;
+    public string BaseUri { get; set; } = default!;
+    public string GetTokenUri { get; set; } = default!;
+    public string GetActivitiesUri { get; set; } = default!;
+    public string GetActivityByIdUri { get; set; } = default!;
+    public string WebhookVerifyToken { get; set; } = default!;
 }

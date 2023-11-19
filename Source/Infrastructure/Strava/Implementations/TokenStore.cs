@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using TrainingLogger.Core.Models;
 using TrainingLogger.Core.Services;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava.Exceptions;
 using TrainingLogger.Infrastructure.Strava.Interfaces;
+using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
@@ -13,21 +13,24 @@ internal sealed class TokenStore : ITokenStore
     private readonly ApplicationDbContext _dbContext;
     private readonly IMemoryCache _cache;
     private readonly GetUtcNow _getUtcNow;
+    private readonly GetRefreshedToken _getRefreshToken;
 
     public TokenStore(
         ApplicationDbContext dbContext,
         IMemoryCache cache,
-        GetUtcNow getUtcNow)
+        GetUtcNow getUtcNow,
+        GetRefreshedToken getRefreshToken)
     {
         _dbContext = dbContext;
         _cache = cache;
         _getUtcNow = getUtcNow;
+        _getRefreshToken = getRefreshToken;
     }
 
-    public async Task<string> GetTokenAsync(GetRefreshedToken fetchNewToken, CancellationToken cancellationToken)
+    public async Task<string> GetTokenAsync(CancellationToken cancellationToken)
     {
         long unixTimeSeconds = _getUtcNow().ToUnixTimeSeconds();
-        var tokenFactory = GetTokenFactory(fetchNewToken, unixTimeSeconds, cancellationToken);
+        var tokenFactory = GetTokenFactory(_getRefreshToken, unixTimeSeconds, cancellationToken);
         var token = await _cache.GetOrCreateAsync(nameof(ApiAccessToken), tokenFactory);
 
         return token is null

@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TrainingLogger.Core.Contracts;
 
 namespace TrainingLogger.Core.Notifications.ActivityPublished;
@@ -15,10 +14,12 @@ internal class ActivityPublishedNotificationHandler : INotificationHandler<Activ
         _logger = logger;
     }
 
-    public async Task Handle(ActivityPublishedNotification notification, CancellationToken cancellationToken) {
+    public async Task HandleAsync(ActivityPublishedNotification notification, CancellationToken cancellationToken)
+    {
         var activity = await _activitiesClient.GetActivityByIdAsync(notification.ActivityId, cancellationToken);
 
-        if (activity is null) {
+        if (activity is null)
+        {
             _logger.LogError("There is no activity with given id {ActivityId}.", notification.ActivityId);
             return;
         }

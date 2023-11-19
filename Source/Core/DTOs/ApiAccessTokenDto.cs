@@ -1,14 +1,17 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TrainingLogger.Infrastructure.Strava.Models;
+namespace TrainingLogger.Core.DTOs;
 
-internal class ApiAccessTokenDto
+public class ApiAccessTokenDto
 {
+    [JsonPropertyName("id")]
+    public Guid Id { get; set; }
+    
     [JsonPropertyName("access_token")]
-    public string AccessToken { get; set; } = default!;
+    public required string AccessToken { get; set; }
 
     [JsonPropertyName("refresh_token")]
-    public string RefreshToken { get; set; } = default!;
+    public required string RefreshToken { get; set; }
 
     [JsonPropertyName("expires_at")]
     public int ExpiresAt { get; set; }
