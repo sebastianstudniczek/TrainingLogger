@@ -8,8 +8,8 @@ namespace TrainingLogger.Web.UnitTests.Endpoints;
 
 public class PostEventEndpointTests
 {
-    private readonly IFixture _fixture = new Fixture();
     private readonly INotificationDispatcher _mediator = Substitute.For<INotificationDispatcher>();
+    private readonly Fixture _fixture = new();
 
     [Fact]
     public async Task ShouldReturnOkResult()
