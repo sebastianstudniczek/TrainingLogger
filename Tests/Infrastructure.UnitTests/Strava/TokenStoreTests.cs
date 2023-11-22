@@ -17,7 +17,7 @@ public class TokenStoreTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly IMemoryCache _memoryCache = Substitute.For<IMemoryCache>();
     private readonly GetUtcNow _getUtcNow = Substitute.For<GetUtcNow>();
-    private readonly Fixture _fixture = new();
+    private readonly IFixture _fixture = new Fixture();
     private readonly GetRefreshedToken _refreshToken = Substitute.For<GetRefreshedToken>();
 
     public TokenStoreTests()

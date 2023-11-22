@@ -6,7 +6,7 @@ namespace TrainingLogger.Infrastructure.UnitTests;
 
 internal static class Utils
 {
-    public const string SqliteInMemoryConnectionString = "Filename=:memory:";
+    public static string SqliteInMemoryConnectionString = "Filename=:memory:";
 
     public static ApplicationDbContext CreateInMemoryContext(DbConnection connection)
     {

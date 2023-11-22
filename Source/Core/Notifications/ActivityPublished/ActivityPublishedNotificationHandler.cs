@@ -3,23 +3,28 @@ using TrainingLogger.Core.Contracts;
 
 namespace TrainingLogger.Core.Notifications.ActivityPublished;
 
-internal class ActivityPublishedNotificationHandler(
-        IApplicationDbContext dbContext, 
-        IActivitiesClient activitiesClient,
-        ILogger<ActivityPublishedNotificationHandler> logger) 
-    : INotificationHandler<ActivityPublishedNotification> 
-{
+internal class ActivityPublishedNotificationHandler : INotificationHandler<ActivityPublishedNotification> {
+    private readonly IApplicationDbContext _dbContext;
+    private readonly IActivitiesClient _activitiesClient;
+    private readonly ILogger<ActivityPublishedNotificationHandler> _logger;
+
+    public ActivityPublishedNotificationHandler(IApplicationDbContext dbContext, IActivitiesClient activitiesClient, ILogger<ActivityPublishedNotificationHandler> logger) {
+        _dbContext = dbContext;
+        _activitiesClient = activitiesClient;
+        _logger = logger;
+    }
+
     public async Task HandleAsync(ActivityPublishedNotification notification, CancellationToken cancellationToken)
     {
-        var activity = await activitiesClient.GetActivityByIdAsync(notification.ActivityId, cancellationToken);
+        var activity = await _activitiesClient.GetActivityByIdAsync(notification.ActivityId, cancellationToken);
 
         if (activity is null)
         {
-            logger.LogError("There is no activity with given id {ActivityId}.", notification.ActivityId);
+            _logger.LogError("There is no activity with given id {ActivityId}.", notification.ActivityId);
             return;
         }
 
-        dbContext.Activities.Add(activity);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        _dbContext.Activities.Add(activity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

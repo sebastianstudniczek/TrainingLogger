@@ -3,11 +3,18 @@ using TrainingLogger.Core.Contracts;
 
 namespace TrainingLogger.Infrastructure.Notifications.Implementations;
 
-internal class NotificationDispatcher(IServiceProvider serviceProvider) : INotificationDispatcher
+internal class NotificationDispatcher : INotificationDispatcher
 {
+    private readonly IServiceProvider _serviceProvider;
+
+    public NotificationDispatcher(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
     public async Task PublishAsync<T>(T notification, CancellationToken token) where T : INotification
     {
-        var handlers = serviceProvider
+        var handlers = _serviceProvider
             .GetRequiredService<IEnumerable<INotificationHandler<T>>>();
         // TODO: Think about maybe wiring up Channel and background processing if there will be problem
         // Cause this approach relies on scoped resourced to the request
