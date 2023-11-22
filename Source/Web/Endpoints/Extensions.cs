@@ -9,7 +9,7 @@ public static class Extensions
         var endpoints = Assembly
             .GetExecutingAssembly()
             .DefinedTypes
-            .Where(x => typeof(IEndpoint).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false })
+            .Where(x => typeof(IEndpoint).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
             .Select(Activator.CreateInstance)
             .Cast<IEndpoint>();
 

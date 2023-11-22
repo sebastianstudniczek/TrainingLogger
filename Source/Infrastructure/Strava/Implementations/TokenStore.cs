@@ -8,18 +8,30 @@ using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
-internal sealed class TokenStore(
+internal sealed class TokenStore : ITokenStore
+{
+    private readonly ApplicationDbContext _dbContext;
+    private readonly IMemoryCache _cache;
+    private readonly GetUtcNow _getUtcNow;
+    private readonly GetRefreshedToken _getRefreshToken;
+
+    public TokenStore(
         ApplicationDbContext dbContext,
         IMemoryCache cache,
         GetUtcNow getUtcNow,
         GetRefreshedToken getRefreshToken)
-    : ITokenStore
-{
+    {
+        _dbContext = dbContext;
+        _cache = cache;
+        _getUtcNow = getUtcNow;
+        _getRefreshToken = getRefreshToken;
+    }
+
     public async Task<string> GetTokenAsync(CancellationToken cancellationToken)
     {
-        long unixTimeSeconds = getUtcNow().ToUnixTimeSeconds();
-        var tokenFactory = GetTokenFactory(getRefreshToken, unixTimeSeconds, cancellationToken);
-        var token = await cache.GetOrCreateAsync(nameof(ApiAccessToken), tokenFactory);
+        long unixTimeSeconds = _getUtcNow().ToUnixTimeSeconds();
+        var tokenFactory = GetTokenFactory(_getRefreshToken, unixTimeSeconds, cancellationToken);
+        var token = await _cache.GetOrCreateAsync(nameof(ApiAccessToken), tokenFactory);
 
         return token is null
             ? throw new StravaAuthTokenNotFound()
@@ -29,7 +41,7 @@ internal sealed class TokenStore(
     private Func<ICacheEntry, Task<ApiAccessToken?>> GetTokenFactory(GetRefreshedToken fetchNewToken, long unixTimeSeconds, CancellationToken cancellationToken) =>
         async (cacheEntry) =>
         {
-            var savedToken = await dbContext
+            var savedToken = await _dbContext
                 .RefreshTokens
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -45,7 +57,7 @@ internal sealed class TokenStore(
             }
 
             var refreshedToken = await fetchNewToken(savedToken.RefreshToken);
-            await dbContext
+            await _dbContext
                 .RefreshTokens
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.AccessToken, refreshedToken.AccessToken)
