@@ -8,7 +8,7 @@ namespace TrainingLogger.Web.Endpoints;
 public class ValidateSubscriptionEndpoint : IEndpoint
 {
     public string Pattern => "/strava-webhook";
-    public HttpMethod Method => HttpMethod.Post;
+    public HttpMethod Method => HttpMethod.Get;
     public Delegate Handler => ValidateSubscription;
 
     public static IResult ValidateSubscription(

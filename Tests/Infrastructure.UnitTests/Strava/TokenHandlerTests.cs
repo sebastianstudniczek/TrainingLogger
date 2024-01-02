@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using TrainingLogger.Infrastructure.Strava;
 using TrainingLogger.Infrastructure.Strava.Implementations;
 using TrainingLogger.Infrastructure.Strava.Interfaces;
+using TrainingLogger.Shared.Tests;
 
 namespace TrainingLogger.Infrastructure.UnitTests.Strava;
 

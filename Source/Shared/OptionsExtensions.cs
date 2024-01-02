@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Shared;
+namespace TrainingLogger.Shared;
 
 public static class OptionsExtensions
 {

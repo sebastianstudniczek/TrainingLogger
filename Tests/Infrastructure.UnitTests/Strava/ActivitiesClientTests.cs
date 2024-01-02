@@ -7,6 +7,7 @@ using TrainingLogger.Core.DTOs;
 using TrainingLogger.Core.Models;
 using TrainingLogger.Infrastructure.Strava;
 using TrainingLogger.Infrastructure.Strava.Implementations;
+using TrainingLogger.Shared.Tests;
 
 namespace TrainingLogger.Infrastructure.UnitTests.Strava;
 
@@ -103,7 +104,7 @@ public class ActivitiesClientTests
     }
 
 
-    private class StravaOptionsFaker : Faker<StravaOptions>
+    private sealed class StravaOptionsFaker : Faker<StravaOptions>
     {
         public StravaOptionsFaker()
         {

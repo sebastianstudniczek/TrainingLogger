@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using TrainingLogger.Infrastructure.Strava;
 using TrainingLogger.Infrastructure.Strava.Models;
+using TrainingLogger.Shared.Tests;
 using TrainingLogger.Web.Endpoints;
 
 namespace TrainingLogger.Web.UnitTests.Endpoints;
