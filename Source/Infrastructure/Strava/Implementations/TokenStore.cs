@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using TrainingLogger.Core.Services;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava.Exceptions;
 using TrainingLogger.Infrastructure.Strava.Interfaces;
@@ -12,24 +11,24 @@ internal sealed class TokenStore : ITokenStore
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly IMemoryCache _cache;
-    private readonly GetUtcNow _getUtcNow;
+    private readonly TimeProvider _timeProvider;
     private readonly GetRefreshedToken _getRefreshToken;
 
     public TokenStore(
         ApplicationDbContext dbContext,
         IMemoryCache cache,
-        GetUtcNow getUtcNow,
+        TimeProvider timeProvider,
         GetRefreshedToken getRefreshToken)
     {
         _dbContext = dbContext;
         _cache = cache;
-        _getUtcNow = getUtcNow;
+        _timeProvider = timeProvider;
         _getRefreshToken = getRefreshToken;
     }
 
     public async Task<string> GetTokenAsync(CancellationToken cancellationToken)
     {
-        long unixTimeSeconds = _getUtcNow().ToUnixTimeSeconds();
+        long unixTimeSeconds = _timeProvider.GetUtcNow().ToUnixTimeSeconds();
         var tokenFactory = GetTokenFactory(_getRefreshToken, unixTimeSeconds, cancellationToken);
         var token = await _cache.GetOrCreateAsync(nameof(ApiAccessToken), tokenFactory);
 

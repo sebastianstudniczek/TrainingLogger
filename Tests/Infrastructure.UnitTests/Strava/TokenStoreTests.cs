@@ -1,7 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data.Common;
-using TrainingLogger.Core.Services;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava.Exceptions;
 using TrainingLogger.Infrastructure.Strava.Implementations;
@@ -16,8 +15,8 @@ public class TokenStoreTests : IDisposable
     private readonly DbConnection _sqliteConnection;
     private readonly ApplicationDbContext _dbContext;
     private readonly IMemoryCache _memoryCache = Substitute.For<IMemoryCache>();
-    private readonly GetUtcNow _getUtcNow = Substitute.For<GetUtcNow>();
-    private readonly IFixture _fixture = new Fixture();
+    private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
+    private readonly Fixture _fixture = new();
     private readonly GetRefreshedToken _refreshToken = Substitute.For<GetRefreshedToken>();
 
     public TokenStoreTests()
@@ -30,7 +29,7 @@ public class TokenStoreTests : IDisposable
             .Invoke(Arg.Any<string>())
             .Returns(token);
 
-        _store = new TokenStore(_dbContext, _memoryCache, _getUtcNow, _refreshToken);
+        _store = new TokenStore(_dbContext, _memoryCache, _timeProvider, _refreshToken);
     }
 
     [Fact]
@@ -57,7 +56,7 @@ public class TokenStoreTests : IDisposable
     public async Task ShouldReturn_SavedAccessToken_IfIsNotExpired()
     {
         var now = DateTimeOffset.UtcNow;
-        _getUtcNow.Invoke().Returns(now);
+        _timeProvider.GetUtcNow().Returns(now);
         long expiresAt = now.ToUnixTimeSeconds();
         var savedToken = _fixture
             .Build<ApiAccessToken>()
@@ -75,7 +74,7 @@ public class TokenStoreTests : IDisposable
     public async Task ShouldRefreshToken_IfSavedOne_IsExpired_WithRefreshToken()
     {
         var now = DateTimeOffset.UtcNow;
-        _getUtcNow.Invoke().Returns(now);
+        _timeProvider.GetUtcNow().Returns(now);
         long expiresAt = now.ToUnixTimeSeconds();
         var tokenToCache = _fixture
             .Build<ApiAccessToken>()
@@ -99,7 +98,7 @@ public class TokenStoreTests : IDisposable
     public async Task ShouldReplace_SavedToken_WithRefreshedToken_IfSavedOne_IsExpired()
     {
         var now = DateTimeOffset.UtcNow;
-        _getUtcNow.Invoke().Returns(now);
+        _timeProvider.GetUtcNow().Returns(now);
         long expiresAt = now.ToUnixTimeSeconds();
         var tokenToCache = _fixture
             .Build<ApiAccessToken>()
@@ -125,7 +124,7 @@ public class TokenStoreTests : IDisposable
     public async Task ShouldReturn_RefreshedToken_IfSavedOne_IsExpired()
     {
         var now = DateTimeOffset.UtcNow;
-        _getUtcNow.Invoke().Returns(now);
+        _timeProvider.GetUtcNow().Returns(now);
         long expiresAt = now.ToUnixTimeSeconds();
         var tokenToCache = _fixture
             .Build<ApiAccessToken>()
