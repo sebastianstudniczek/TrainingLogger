@@ -1,4 +1,4 @@
-﻿using Shared.Exceptions;
+﻿using TrainingLogger.Shared.Exceptions;
 
 namespace TrainingLogger.Infrastructure.Strava.Exceptions;
 

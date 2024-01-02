@@ -1,7 +1,6 @@
 using Serilog;
 using TrainingLogger.Core;
 using TrainingLogger.Infrastructure;
-using TrainingLogger.Web;
 using TrainingLogger.Web.Endpoints;
 
 Log.Logger = new LoggerConfiguration()

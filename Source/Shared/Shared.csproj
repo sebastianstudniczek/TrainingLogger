@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+		<RootNamespace>TrainingLogger.Shared</RootNamespace>
+		<AssemblyName>TrainingLogger.Shared</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

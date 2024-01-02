@@ -3,13 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
-using Shared;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Notifications;
 using TrainingLogger.Infrastructure.Notifications.Implementations;
 using TrainingLogger.Infrastructure.Strava;
 using TrainingLogger.Infrastructure.Strava.Implementations;
 using TrainingLogger.Infrastructure.Strava.Interfaces;
+using TrainingLogger.Shared;
 
 namespace TrainingLogger.Infrastructure;
 
@@ -19,17 +19,8 @@ public static class Extensions
     {
         services.AddStrava(configuration);
 
-        var connectionString = configuration.GetConnectionString("Sqlite");
-
-        if (connectionString is null)
-        {
-            throw new ArgumentNullException("connectionString cannot be null");
-        }
-
-        services.AddDbContext<ApplicationDbContext>((sp, options) =>
-        {
-            options.UseSqlite(connectionString);
-        });
+        var connectionString = configuration.GetConnectionString("Sqlite") ?? throw new ArgumentNullException("connectionString cannot be null");
+        services.AddDbContext<ApplicationDbContext>((sp, options) => options.UseSqlite(connectionString));
 
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 

@@ -1,4 +1,4 @@
-﻿namespace Shared.Tests;
+﻿namespace TrainingLogger.Shared.Tests;
 
 public static class TestUtils
 {

@@ -8,7 +8,7 @@ namespace TrainingLogger.Web.Endpoints;
 public class PostEventEndpoint : IEndpoint
 {
     public string Pattern => "/strava-webhook";
-    public HttpMethod Method => HttpMethod.Get;
+    public HttpMethod Method => HttpMethod.Post;
     public Delegate Handler => PostEvent;
 
     public static async Task<IResult> PostEvent(
