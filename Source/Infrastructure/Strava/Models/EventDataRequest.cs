@@ -18,9 +18,6 @@ public record EventDataRequest
     [JsonPropertyName("event_time")]
     public ulong EventTime { get; init; }
 
-    [JsonPropertyName("owner_id")]
-    public ulong OwnerId { get; init; }
-
     [JsonPropertyName("subscription_id")]
     public ulong SubscriptionId { get; init; }
 

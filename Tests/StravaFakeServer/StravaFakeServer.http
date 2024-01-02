@@ -1,0 +1,6 @@
+@url = http://localhost:5027
+
+GET {{url}}/api/v3/activities/123
+
+###
+GET {{url}}/generate-event
