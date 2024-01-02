@@ -8,7 +8,7 @@ namespace TrainingLogger.Core.UnitTests.Notifications;
 public class ActivityPublishedNotificationHandlerTests {
     private readonly IApplicationDbContext _dbContext = Substitute.For<IApplicationDbContext>();
     private readonly IActivitiesClient _activitiesClient = Substitute.For<IActivitiesClient>();
-    private readonly IFixture _fixture = new Fixture();
+    private readonly Fixture _fixture = new();
 
     public ActivityPublishedNotificationHandlerTests() {
         _fixture.Customize(new AutoNSubstituteCustomization());

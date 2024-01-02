@@ -3,21 +3,14 @@ using TrainingLogger.StravaFakeServer.Generators;
 
 namespace TrainingLogger.StravaFakeServer;
 
-public class ActivityPublisher : BackgroundService
+public class ActivityPublisher(
+    ILogger<ActivityPublisher> logger,
+    HttpClient httpClient,
+    IOptions<TrainingLoggerOptions> webOptions) : BackgroundService
 {
-    private readonly ILogger<ActivityPublisher> _logger;
-    private readonly HttpClient _httpClient;
-    private readonly TrainingLoggerOptions _webOptions;
-
-    public ActivityPublisher(
-        ILogger<ActivityPublisher> logger, 
-        HttpClient httpClient,
-        IOptions<TrainingLoggerOptions> webOptions)
-    {
-        _logger = logger;
-        _httpClient = httpClient;
-        _webOptions = webOptions.Value;
-    }
+    private readonly ILogger<ActivityPublisher> _logger = logger;
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly TrainingLoggerOptions _webOptions = webOptions.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

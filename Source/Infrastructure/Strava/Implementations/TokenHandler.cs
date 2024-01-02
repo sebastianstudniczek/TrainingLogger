@@ -4,16 +4,12 @@ using TrainingLogger.Infrastructure.Strava.Interfaces;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
-internal sealed class TokenHandler : DelegatingHandler
+internal sealed class TokenHandler(
+    ITokenStore tokenStore, 
+    IOptions<StravaOptions> options) : DelegatingHandler
 {
-    private readonly ITokenStore _tokenStore;
-    private readonly string _authScheme;
-
-    public TokenHandler(ITokenStore tokenStore, IOptions<StravaOptions> options)
-    {
-        _tokenStore = tokenStore;
-        _authScheme = options.Value.AuthScheme;
-    }
+    private readonly ITokenStore _tokenStore = tokenStore;
+    private readonly string _authScheme = options.Value.AuthScheme;
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
