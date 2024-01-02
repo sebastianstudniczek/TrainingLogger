@@ -3,16 +3,14 @@ using TrainingLogger.Core.Contracts;
 
 namespace TrainingLogger.Core.Notifications.ActivityPublished;
 
-internal class ActivityPublishedNotificationHandler : INotificationHandler<ActivityPublishedNotification> {
-    private readonly IApplicationDbContext _dbContext;
-    private readonly IActivitiesClient _activitiesClient;
-    private readonly ILogger<ActivityPublishedNotificationHandler> _logger;
-
-    public ActivityPublishedNotificationHandler(IApplicationDbContext dbContext, IActivitiesClient activitiesClient, ILogger<ActivityPublishedNotificationHandler> logger) {
-        _dbContext = dbContext;
-        _activitiesClient = activitiesClient;
-        _logger = logger;
-    }
+internal class ActivityPublishedNotificationHandler(
+    IApplicationDbContext dbContext,
+    IActivitiesClient activitiesClient,
+    ILogger<ActivityPublishedNotificationHandler> logger) : INotificationHandler<ActivityPublishedNotification> 
+{
+    private readonly IApplicationDbContext _dbContext = dbContext;
+    private readonly IActivitiesClient _activitiesClient = activitiesClient;
+    private readonly ILogger<ActivityPublishedNotificationHandler> _logger = logger;
 
     public async Task HandleAsync(ActivityPublishedNotification notification, CancellationToken cancellationToken)
     {

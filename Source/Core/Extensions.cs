@@ -13,7 +13,6 @@ public static class Extensions
         return services;
     }
 
-
     private static IServiceCollection AddNotificationHandlers(this IServiceCollection services)
     {
         var interfacePredicate = (Type type) => type.GetGenericTypeDefinition() == typeof(INotificationHandler<>);

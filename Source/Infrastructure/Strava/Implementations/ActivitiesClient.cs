@@ -8,18 +8,14 @@ using TrainingLogger.Core.Models;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
-internal sealed class ActivitiesClient : IActivitiesClient
+internal sealed class ActivitiesClient(
+    IHttpClientFactory httpClientFactory, 
+    IOptions<StravaOptions> options, 
+    ILogger<ActivitiesClient> logger) : IActivitiesClient
 {
-    private readonly IOptions<StravaOptions> _options;
-    private readonly ILogger<ActivitiesClient> _logger;
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public ActivitiesClient(IHttpClientFactory httpClientFactory, IOptions<StravaOptions> options, ILogger<ActivitiesClient> logger)
-    {
-        _options = options;
-        _logger = logger;
-        _httpClientFactory = httpClientFactory;
-    }
+    private readonly IOptions<StravaOptions> _options = options;
+    private readonly ILogger<ActivitiesClient> _logger = logger;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public async Task<Activity?> GetActivityByIdAsync(ulong id, CancellationToken token) {
         var httpClient = _httpClientFactory.CreateClient(_options.Value.HttpClientName);

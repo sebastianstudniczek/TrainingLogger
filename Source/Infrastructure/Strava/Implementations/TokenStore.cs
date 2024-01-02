@@ -7,24 +7,16 @@ using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
-internal sealed class TokenStore : ITokenStore
+internal sealed class TokenStore(
+    ApplicationDbContext dbContext,
+    IMemoryCache cache,
+    TimeProvider timeProvider,
+    GetRefreshedToken getRefreshToken) : ITokenStore
 {
-    private readonly ApplicationDbContext _dbContext;
-    private readonly IMemoryCache _cache;
-    private readonly TimeProvider _timeProvider;
-    private readonly GetRefreshedToken _getRefreshToken;
-
-    public TokenStore(
-        ApplicationDbContext dbContext,
-        IMemoryCache cache,
-        TimeProvider timeProvider,
-        GetRefreshedToken getRefreshToken)
-    {
-        _dbContext = dbContext;
-        _cache = cache;
-        _timeProvider = timeProvider;
-        _getRefreshToken = getRefreshToken;
-    }
+    private readonly ApplicationDbContext _dbContext = dbContext;
+    private readonly IMemoryCache _cache = cache;
+    private readonly TimeProvider _timeProvider = timeProvider;
+    private readonly GetRefreshedToken _getRefreshToken = getRefreshToken;
 
     public async Task<string> GetTokenAsync(CancellationToken cancellationToken)
     {
