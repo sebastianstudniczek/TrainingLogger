@@ -1,10 +1,6 @@
-﻿using TrainingLogger.Infrastructure.Strava.Models;
-
-namespace TrainingLogger.Infrastructure.Strava.Interfaces;
-
-internal delegate Task<ApiAccessToken> GetRefreshedToken(string refreshToken);
+﻿namespace TrainingLogger.Infrastructure.Strava.Interfaces;
 
 internal interface ITokenStore
 {
-    Task<string> GetTokenAsync(CancellationToken token);
+    Task<string> GetTokenAsync(CancellationToken cancellationToken);
 }

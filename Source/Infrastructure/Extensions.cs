@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
+using TrainingLogger.Core.Contracts;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Notifications;
 using TrainingLogger.Infrastructure.Notifications.Implementations;
@@ -32,14 +33,16 @@ public static class Extensions
         var stravaSection = configuration.GetSection(StravaOptions.Strava);
         var stravaOptions = stravaSection.BindOptions<StravaOptions>();
         services.Configure<StravaOptions>(stravaSection);
-        
+        var clientCredentialsSection = configuration.GetSection(nameof(ClientCredentials));
+        services.Configure<ClientCredentials>(clientCredentialsSection);
+
         services.AddMemoryCache();
         services.AddScoped<ITokenStore, TokenStore>();
         services.AddScoped<TokenHandler>();
 
-        services.AddHttpClient(stravaOptions.HttpClientName, (IServiceProvider _, HttpClient client) =>
+        services.AddHttpClient(Consts.StravaClientName, (IServiceProvider _, HttpClient client) =>
         {
-            client.BaseAddress = new Uri(stravaOptions.BaseUri);
+            client.BaseAddress = stravaOptions.BaseUri;
         })
             .AddHttpMessageHandler<TokenHandler>()
             .AddPolicyHandler(GetRetryPolicy());

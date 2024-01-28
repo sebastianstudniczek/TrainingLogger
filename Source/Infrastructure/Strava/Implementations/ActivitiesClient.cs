@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using TrainingLogger.Core.Contracts;
 using TrainingLogger.Core.DTOs;
-using TrainingLogger.Core.Models;
 
 namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
@@ -17,9 +16,9 @@ internal sealed class ActivitiesClient(
     private readonly ILogger<ActivitiesClient> _logger = logger;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-    public async Task<Activity?> GetActivityByIdAsync(ulong id, CancellationToken token) {
-        var httpClient = _httpClientFactory.CreateClient(_options.Value.HttpClientName);
-        var requestPath = _options.Value.GetActivityByIdUri.AppendPathSegment(id);
+    public async Task<ActivityDto?> GetActivityByIdAsync(ulong id, CancellationToken token) {
+        var httpClient = _httpClientFactory.CreateClient(Consts.StravaClientName);
+        var requestPath = _options.Value.GetActivityByIdPart.AppendPathSegment(id);
         var result = await httpClient.GetAsync(requestPath, token);
 
         if (!result.IsSuccessStatusCode) {
@@ -30,6 +29,6 @@ internal sealed class ActivitiesClient(
         string content = await result.Content.ReadAsStringAsync(token);
         var activityDto = JsonSerializer.Deserialize<ActivityDto>(content);
 
-        return ActivityDto.MapToEntity(activityDto!);
+        return activityDto;
     }
 }

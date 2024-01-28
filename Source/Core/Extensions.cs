@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using TrainingLogger.Core.Contracts;
 
 namespace TrainingLogger.Core;
@@ -17,15 +18,19 @@ public static class Extensions
     {
         var interfacePredicate = (Type type) => type.GetGenericTypeDefinition() == typeof(INotificationHandler<>);
 
-        var handlers = typeof(Extensions)
-            .Assembly
+        var handlers = Assembly
+            .GetExecutingAssembly()
             .GetTypes()
-            .Where(x => x.GetInterfaces().Any(interfacePredicate) && !x.IsInterface);
+            .Where(x => x.GetInterfaces().Any(y => y.IsGenericType && interfacePredicate(y)) && !x.IsInterface)
+            .Select(x => new
+            {
+                Type = x,
+                Interface = x.GetInterfaces().First(interfacePredicate)
+            });
 
         foreach (var handler in handlers)
         {
-            var handlerInterface = handler.GetInterfaces().First(interfacePredicate);
-            services.AddTransient(handlerInterface, handler);
+            services.AddScoped(handler.Interface, handler.Type);
         }
 
         return services;

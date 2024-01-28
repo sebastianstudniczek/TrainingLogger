@@ -11,7 +11,7 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
-		<InternalsVisibleTo Include="Shared.Tests" />
+		<InternalsVisibleTo Include="TrainingLogger.Shared.Tests" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 
