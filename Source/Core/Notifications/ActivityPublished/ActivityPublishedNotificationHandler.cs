@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using TrainingLogger.Core.Contracts;
+using TrainingLogger.Core.DTOs;
 
 namespace TrainingLogger.Core.Notifications.ActivityPublished;
 
@@ -14,15 +15,15 @@ internal class ActivityPublishedNotificationHandler(
 
     public async Task HandleAsync(ActivityPublishedNotification notification, CancellationToken cancellationToken)
     {
-        var activity = await _activitiesClient.GetActivityByIdAsync(notification.ActivityId, cancellationToken);
+        var activityDto = await _activitiesClient.GetActivityByIdAsync(notification.ActivityId, cancellationToken);
 
-        if (activity is null)
+        if (activityDto is null)
         {
             _logger.LogError("There is no activity with given id {ActivityId}.", notification.ActivityId);
             return;
         }
 
-        _dbContext.Activities.Add(activity);
+        _dbContext.Activities.Add(activityDto.AsEntity());
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

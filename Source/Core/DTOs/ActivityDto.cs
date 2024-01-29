@@ -37,20 +37,4 @@ public class ActivityDto
 
     [JsonPropertyName("calories")]
     public double Calories { get; init; }
-
-    public static Activity MapToEntity(ActivityDto dto) =>
-        new()
-        {
-            Id = dto.Id,
-            Name = dto.Name,
-            Distance = dto.Distance,
-            MovingTime = dto.MovingTime,
-            ElapsedTime = dto.ElapsedTime,
-            SportType = dto.SportType,
-            StartDate = dto.StartDate,
-            StartDateLocal = dto.StartDateLocal,
-            AverageCadence = dto.AverageCadence,
-            Description = dto.Description,
-            Calories = dto.Calories
-        };
 }

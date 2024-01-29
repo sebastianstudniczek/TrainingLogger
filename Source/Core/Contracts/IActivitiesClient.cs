@@ -1,7 +1,8 @@
-﻿using TrainingLogger.Core.Models;
+﻿using TrainingLogger.Core.DTOs;
 
 namespace TrainingLogger.Core.Contracts;
 
-public interface IActivitiesClient {
-    Task<Activity?> GetActivityByIdAsync(ulong id, CancellationToken token);
+public interface IActivitiesClient
+{
+    Task<ActivityDto?> GetActivityByIdAsync(ulong id, CancellationToken token);
 }
