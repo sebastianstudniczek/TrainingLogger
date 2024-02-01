@@ -15,7 +15,6 @@ public sealed class ActivityFaker : Faker<ActivityDto>
         RuleFor(x => x.SportType, x => x.PickRandom<SportType>());
         RuleFor(x => x.StartDate, x => x.Date.Recent());
         RuleFor(x => x.StartDateLocal, x => x.Date.Recent());
-        RuleFor(x => x.AverageCadence, x => x.Random.Number(80, 200));
         RuleFor(x => x.Description, x => $"Training: {x.Random.Word()}/{x.Random.Number(10)}");
         RuleFor(x => x.Calories, x => x.Random.Number(100, 1200));
     }

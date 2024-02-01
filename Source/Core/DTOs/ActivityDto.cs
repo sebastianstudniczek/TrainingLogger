@@ -29,9 +29,6 @@ public class ActivityDto
     [JsonPropertyName("start_date_local")]
     public DateTime StartDateLocal { get; init; }
 
-    [JsonPropertyName("average_cadence")]
-    public double AverageCadence { get; init; }
-
     [JsonPropertyName("description")]
     public required string Description { get; init; }
 
