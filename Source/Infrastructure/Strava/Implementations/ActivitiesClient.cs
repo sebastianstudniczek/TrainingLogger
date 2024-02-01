@@ -16,7 +16,7 @@ internal sealed class ActivitiesClient(
     private readonly ILogger<ActivitiesClient> _logger = logger;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-    public async Task<ActivityDto?> GetActivityByIdAsync(ulong id, CancellationToken token) {
+    public async Task<ActivityDto?> GetActivityByIdAsync(long id, CancellationToken token) {
         var httpClient = _httpClientFactory.CreateClient(Consts.StravaClientName);
         var requestPath = _options.Value.GetActivityByIdPart.AppendPathSegment(id);
         var result = await httpClient.GetAsync(requestPath, token);

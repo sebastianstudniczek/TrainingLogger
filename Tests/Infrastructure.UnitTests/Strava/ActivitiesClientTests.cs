@@ -31,7 +31,7 @@ public class ActivitiesClientTests
         _options.Value.Returns(sampleOptions);
         _fixture.Inject(_options);
         var client = _fixture.Create<ActivitiesClient>();
-        ulong acitivtyId = _fixture.Create<ulong>();
+        long acitivtyId = _fixture.Create<long>();
 
         _ = await client.GetActivityByIdAsync(acitivtyId, default);
 
@@ -47,7 +47,7 @@ public class ActivitiesClientTests
         _options.Value.Returns(sampleOptions);
         _fixture.Inject(_options);
         var activity = _fixture.Create<ActivityDto>();
-        ulong activityId = activity.Id;
+        long activityId = activity.Id;
         var expectedUri = Url
             .Combine(sampleOptions.BaseUri.ToString(), sampleOptions.GetActivityByIdPart)
             .AppendPathSegment(activityId)

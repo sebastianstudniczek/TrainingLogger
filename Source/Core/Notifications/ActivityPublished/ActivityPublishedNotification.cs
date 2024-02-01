@@ -2,4 +2,4 @@
 
 namespace TrainingLogger.Core.Notifications.ActivityPublished;
 
-public record ActivityPublishedNotification(ulong ActivityId) : INotification;
+public record ActivityPublishedNotification(long ActivityId) : INotification;

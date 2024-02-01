@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TrainingLogger.Core;
+using TrainingLogger.Core.Contracts;
 using TrainingLogger.Infrastructure;
 using TrainingLogger.Web.Endpoints;
 
@@ -24,6 +26,13 @@ try
         .AddHttpLogging(x => x.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All);
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>() as DbContext;
+        await dbContext!.Database.MigrateAsync();
+    }
+
     app.UseHttpLogging();
 
     app.MapEndpoints();
