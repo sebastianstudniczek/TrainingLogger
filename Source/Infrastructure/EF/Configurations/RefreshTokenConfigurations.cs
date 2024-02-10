@@ -4,7 +4,7 @@ using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.EF.Configurations;
 
-internal class ApiAccessTokenConfiguration : IEntityTypeConfiguration<ApiAccessToken>
+internal class RefreshTokenConfigurations : IEntityTypeConfiguration<ApiAccessToken>
 {
     public void Configure(EntityTypeBuilder<ApiAccessToken> builder)
     {

@@ -4,8 +4,8 @@ namespace TrainingLogger.Core.DTOs;
 
 internal static class MappingExtensions
 {
-    public static Activity AsEntity(this ActivityDto dto)
-        => new()
+    public static Activity AsEntity(this ActivityDto dto) =>
+        new()
         {
             Id = dto.Id,
             Name = dto.Name,
@@ -15,6 +15,7 @@ internal static class MappingExtensions
             SportType = dto.SportType,
             StartDate = dto.StartDate,
             StartDateLocal = dto.StartDateLocal,
+            AverageCadence = dto.AverageCadence,
             Description = dto.Description,
             Calories = dto.Calories
         };

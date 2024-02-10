@@ -2,14 +2,15 @@
 
 public class Activity
 {
-    public ulong Id { get; set; }
-    public required string Name { get; set; }
-    public int Distance { get; set; }
-    public int MovingTime { get; set; }
-    public int ElapsedTime { get; set; }
-    public required SportType SportType { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime StartDateLocal { get; set; }
-    public required string Description { get; set; }
-    public double Calories { get; set; }
+    public ulong Id { get; init; }
+    public required string Name { get; init; }
+    public int Distance { get; init; }
+    public int MovingTime { get; init; }
+    public int ElapsedTime { get; init; }
+    public required SportType SportType { get; init; }
+    public DateTime StartDate { get; init; }
+    public DateTime StartDateLocal { get; init; }
+    public double AverageCadence { get; init; }
+    public required string Description { get; init; }
+    public double Calories { get; init; }
 }

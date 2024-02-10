@@ -18,21 +18,12 @@ public static class Extensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-            .AddStrava(configuration)
-            .AddPostgres(configuration)
-            .AddScoped<INotificationDispatcher, NotificationDispatcher>()
-            .AddScoped<IActivitiesClient, ActivitiesClient>();
+        services.AddStrava(configuration);
 
-        return services;
-    }
+        var connectionString = configuration.GetConnectionString("Sqlite") ?? throw new ArgumentNullException("connectionString cannot be null");
+        services.AddDbContext<ApplicationDbContext>((sp, options) => options.UseSqlite(connectionString));
 
-    private static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration configuration)
-    {
-        var connectionString = configuration.GetConnectionString("Postgres") 
-            ?? throw new ArgumentException("Postgres connection string cannot be null");
-        services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
-        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
         return services;
     }
