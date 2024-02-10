@@ -6,7 +6,7 @@ namespace TrainingLogger.Core.DTOs;
 public class ActivityDto
 {
     [JsonPropertyName("id")]
-    public ulong Id { get; init; }
+    public long Id { get; init; }
 
     [JsonPropertyName("name")]
     public required string Name { get; init; }
@@ -28,9 +28,6 @@ public class ActivityDto
 
     [JsonPropertyName("start_date_local")]
     public DateTime StartDateLocal { get; init; }
-
-    [JsonPropertyName("average_cadence")]
-    public double AverageCadence { get; init; }
 
     [JsonPropertyName("description")]
     public required string Description { get; init; }

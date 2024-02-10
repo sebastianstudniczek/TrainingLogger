@@ -6,18 +6,13 @@ using TrainingLogger.Infrastructure.Strava.Models;
 
 namespace TrainingLogger.Infrastructure.EF;
 
-internal sealed class ApplicationDbContext : DbContext, IApplicationDbContext
+internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options), IApplicationDbContext
 {
-    public ApplicationDbContext(DbContextOptions options) : base(options)
-    {
-    }
-
-    public DbSet<ApiAccessToken> RefreshTokens => Set<ApiAccessToken>();
-    public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<ApiAccessToken> RefreshTokens { get; set; }
+    public DbSet<Activity> Activities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        base.OnModelCreating(modelBuilder);
     }
 }

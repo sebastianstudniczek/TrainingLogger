@@ -4,5 +4,5 @@ namespace TrainingLogger.Core.Contracts;
 
 public interface IActivitiesClient
 {
-    Task<ActivityDto?> GetActivityByIdAsync(ulong id, CancellationToken token);
+    Task<ActivityDto?> GetActivityByIdAsync(long id, CancellationToken token);
 }

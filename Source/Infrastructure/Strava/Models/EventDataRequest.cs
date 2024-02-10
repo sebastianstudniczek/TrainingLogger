@@ -9,17 +9,17 @@ public record EventDataRequest
     public required EventObjectType ObjectType { get; init; }
 
     [JsonPropertyName("object_id")]
-    public required ulong ObjectId { get; init; }
+    public required long ObjectId { get; init; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonPropertyName("aspect_type")]
     public required EventAspectType AspectType { get; init; }
 
     [JsonPropertyName("event_time")]
-    public ulong EventTime { get; init; }
+    public long EventTime { get; init; }
 
     [JsonPropertyName("subscription_id")]
-    public ulong SubscriptionId { get; init; }
+    public long SubscriptionId { get; init; }
 
     [JsonPropertyName("updates")]
     public dynamic? Updates { get; init; }

@@ -28,7 +28,7 @@ public class ActivityPublishedNotificationHandlerTests {
         var notification = _fixture.Create<ActivityPublishedNotification>();
         var activityDto = _fixture.Create<ActivityDto>();
         _activitiesClient
-            .GetActivityByIdAsync(Arg.Any<ulong>(), Arg.Any<CancellationToken>())
+            .GetActivityByIdAsync(Arg.Any<long>(), Arg.Any<CancellationToken>())
             .Returns(activityDto);
         Activity? invokedWith = null;
         _dbContext

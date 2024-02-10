@@ -14,7 +14,7 @@ builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.MapGet("api/v3/activities/{id}", ([FromRoute] ulong id) =>
+app.MapGet("api/v3/activities/{id}", ([FromRoute] long id) =>
 {
     var activity = new ActivityFaker()
         .WithId(id)
