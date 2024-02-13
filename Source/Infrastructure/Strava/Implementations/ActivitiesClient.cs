@@ -20,7 +20,7 @@ internal sealed class ActivitiesClient(
         return await httpClient.GetFromJsonAsync<ActivityDto>(requestPath, token);
     }
 
-    public async Task<IEnumerable<ActivityDto>> GetActivitiesAsync(CancellationToken token)
+    public async Task<IEnumerable<ActivityDto>> GetActivitiesAsync(DateTimeOffset? from = null, CancellationToken token = default)
     {
         var httpClient = _httpClientFactory.CreateClient(Consts.StravaClientName);
         var requestPath = _options.Value.GetActivitiesPart;

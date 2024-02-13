@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using System.Text.Json;
 using TrainingLogger.Infrastructure.EF;
 using TrainingLogger.Infrastructure.Strava;
-using TrainingLogger.Infrastructure.Strava.Exceptions;
 using TrainingLogger.Infrastructure.Strava.Implementations;
 using TrainingLogger.Infrastructure.Strava.Models;
 
@@ -19,6 +19,7 @@ public class TokenStoreTests : IDisposable
     private readonly StravaOptionsFaker _optionsFaker = new();
     private readonly ApplicationDbContext _dbContext;
     private readonly TrainingLoggerFixture _fixture = new();
+    private readonly ClientCredentials _validCredentials;
 
     public TokenStoreTests()
     {
@@ -27,6 +28,7 @@ public class TokenStoreTests : IDisposable
         _dbContext = Utils.CreateInMemoryContext(_sqliteConnection);
         var stravaOptions = Options.Create(_optionsFaker.Generate());
         var sampleCredentials = Options.Create(_fixture.Create<ClientCredentials>());
+        _validCredentials = sampleCredentials.Value;
 
         _store = new TokenStore(
             _dbContext,
@@ -35,26 +37,6 @@ public class TokenStoreTests : IDisposable
             _httpClientFactory,
             stravaOptions,
             sampleCredentials);
-    }
-
-    [Fact]
-    public async Task Should_Fail_When_There_Is_No_Token_Saved_In_Database()
-    {
-        var act = async () => await _store.GetTokenAsync(default);
-
-        await act.Should().ThrowAsync<StravaAuthTokenNotFound>();
-    }
-
-    [Fact]
-    public async Task Should_Not_Fail_If_There_Is_A_Token_Saved_In_Database()
-    {
-        var savedToken = _fixture.Create<ApiAccessToken>();
-        _dbContext.RefreshTokens.Add(savedToken);
-        _dbContext.SaveChanges();
-
-        var act = async () => await _store.GetTokenAsync(default);
-
-        await act.Should().NotThrowAsync<StravaAuthTokenNotFound>();
     }
 
     [Fact]
@@ -67,7 +49,7 @@ public class TokenStoreTests : IDisposable
             .Build<ApiAccessToken>()
             .With(x => x.ExpiresAt, expiresAt + 1)
             .Create();
-        _dbContext.RefreshTokens.Add(savedToken);
+        _dbContext.ApiAccessTokens.Add(savedToken);
         _dbContext.SaveChanges();
 
         string actualToken = await _store.GetTokenAsync(default);
@@ -76,7 +58,7 @@ public class TokenStoreTests : IDisposable
     }
 
     [Fact]
-    public async Task Should_Refresh_Token_If_Saved_One_Is_Expired_With_Refresh_Token_From_Db()
+    public async Task Should_Refresh_Token_If_Saved_One_Is_Expired_With_Refresh_Token_From_Options()
     {
         var now = DateTimeOffset.UtcNow;
         _timeProvider.GetUtcNow().Returns(now);
@@ -85,10 +67,10 @@ public class TokenStoreTests : IDisposable
             .Build<ApiAccessToken>()
             .With(x => x.ExpiresAt, expiresAt)
             .Create();
-        _dbContext.RefreshTokens.Add(tokenToCache);
+        _dbContext.ApiAccessTokens.Add(tokenToCache);
         _dbContext.SaveChanges();
         var httpClient = new MockHttpClientBuilder()
-            .WithReponseContent(JsonContent.Create(tokenToCache))
+            .WithReponseContent(CreateAccessTokenResponse(tokenToCache))
             .Build();
         _httpClientFactory
             .CreateClient(Arg.Any<string>())
@@ -96,10 +78,13 @@ public class TokenStoreTests : IDisposable
 
         _ = await _store.GetTokenAsync(default);
 
-        var actualRequestContent = httpClient.MessageHandler.InvokedWithRequest?.Content;
-        actualRequestContent.Should().NotBeNull();
-        var tokenRequest = (actualRequestContent as JsonContent)?.Value as TokenExchangeRequest;
-        tokenRequest?.RefreshToken.Should().Be(tokenToCache.RefreshToken);
+        var refreshTokenParam = httpClient
+            .MessageHandler
+            .InvokedWithRequest
+            ?.RequestUri
+            ?.GetQueryParamValue("refresh_token");
+        refreshTokenParam.Should().NotBeNull();
+        refreshTokenParam!.Should().Be(_validCredentials.RefreshToken);
     }
 
     [Fact(Skip = "In memory provider does not support ExecuteUpdate method")]
@@ -112,11 +97,11 @@ public class TokenStoreTests : IDisposable
             .Build<ApiAccessToken>()
             .With(x => x.ExpiresAt, expiresAt)
             .Create();
-        _dbContext.RefreshTokens.Add(tokenToCache);
+        _dbContext.ApiAccessTokens.Add(tokenToCache);
         _dbContext.SaveChanges();
         var refreshedToken = _fixture.Create<ApiAccessToken>();
         var httpClient = new MockHttpClientBuilder()
-            .WithReponseContent(JsonContent.Create(refreshedToken))
+            .WithReponseContent(CreateAccessTokenResponse(refreshedToken))
             .Build();
         _httpClientFactory
             .CreateClient(Arg.Any<string>())
@@ -125,7 +110,7 @@ public class TokenStoreTests : IDisposable
         _ = await _store.GetTokenAsync(default);
 
         var replacedToken = _dbContext
-            .RefreshTokens
+            .ApiAccessTokens
             .Single();
         replacedToken.Should().NotBeNull();
         replacedToken.Should().BeEquivalentTo(refreshedToken);
@@ -141,11 +126,12 @@ public class TokenStoreTests : IDisposable
             .Build<ApiAccessToken>()
             .With(x => x.ExpiresAt, expiresAt)
             .Create();
-        _dbContext.RefreshTokens.Add(tokenToCache);
+        _dbContext.ApiAccessTokens.Add(tokenToCache);
         _dbContext.SaveChanges();
         var refreshedToken = _fixture.Create<ApiAccessToken>();
+         
         var httpClient = new MockHttpClientBuilder()
-            .WithReponseContent(JsonContent.Create(refreshedToken))
+            .WithReponseContent(CreateAccessTokenResponse(refreshedToken))
             .Build();
         _httpClientFactory
             .CreateClient(Arg.Any<string>())
@@ -154,6 +140,16 @@ public class TokenStoreTests : IDisposable
         string actualToken = await _store.GetTokenAsync(default);
 
         actualToken.Should().BeEquivalentTo(refreshedToken.AccessToken);
+    }
+
+    private static JsonContent CreateAccessTokenResponse(ApiAccessToken accessToken)
+    {
+        var serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        };
+
+        return JsonContent.Create(accessToken, options: serializerOptions);
     }
 
     public void Dispose() => _sqliteConnection.Dispose();
