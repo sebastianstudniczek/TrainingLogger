@@ -1,6 +1,5 @@
 ﻿using Flurl;
 using Microsoft.Extensions.Options;
-using System.Net;
 using System.Net.Http.Json;
 using TrainingLogger.Core.DTOs;
 using TrainingLogger.Infrastructure.Strava;
@@ -16,7 +15,7 @@ public class ActivitiesClientTests
     private readonly StravaOptionsFaker _optionsFaker = new();
 
     [Fact]
-    public async Task Get_Activity_By_Id_Should_Use_Strava_Http_Client()
+    public async Task GetActivity_By_Id_Should_Use_Strava_Http_Client()
     {
         var activity = _fixture.Create<ActivityDto>();
         var mockHttpClient = new MockHttpClientBuilder()
@@ -70,23 +69,51 @@ public class ActivitiesClientTests
     }
 
     [Fact]
-    public async Task Get_ActivityById_Should_Return_Null_If_Request_Was_Not_Successful()
+    public async Task GetActivities_Should_Use_Strava_Http_Client()
+    {
+        var activity = _fixture.CreateMany<ActivityDto>();
+        var mockHttpClient = new MockHttpClientBuilder()
+            .WithReponseContent(JsonContent.Create(activity))
+            .Build();
+        _httpClientFactory
+            .CreateClient(Arg.Any<string>())
+            .Returns(mockHttpClient.Client);
+        _fixture.Inject(_httpClientFactory);
+        var sampleOptions = _fixture.Create<StravaOptions>();
+        const string expectedClientName = "Strava";
+        _options.Value.Returns(sampleOptions);
+        _fixture.Inject(_options);
+        var client = _fixture.Create<ActivitiesClient>();
+
+        _ = await client.GetActivitiesAsync(default);
+
+        _httpClientFactory
+            .Received()
+            .CreateClient(expectedClientName);
+    }
+
+    [Fact]
+    public async Task GetActivities_Should_Get_Activities_From_Strava()
     {
         var sampleOptions = _optionsFaker.Generate();
         _options.Value.Returns(sampleOptions);
         _fixture.Inject(_options);
-        var httpClient = new MockHttpClientBuilder()
-            .WithResponseCode(HttpStatusCode.BadRequest)
+        var activity = _fixture.CreateMany<ActivityDto>(3);
+        var expectedUri = sampleOptions.BaseUri.AppendPathSegment(sampleOptions.GetActivitiesPart).ToString();
+        var mockHttpClient = new MockHttpClientBuilder()
+            .WithReponseContent(JsonContent.Create(activity))
+            .WithBaseUri(sampleOptions.BaseUri)
             .Build();
         _httpClientFactory
             .CreateClient(Arg.Any<string>())
-            .Returns(httpClient.Client);
+            .Returns(mockHttpClient.Client);
         _fixture.Inject(_httpClientFactory);
-        _fixture.Inject(_options);
-        var client = _fixture.Create<ActivitiesClient>();
+        var activitiesClient = _fixture.Create<ActivitiesClient>();
 
-        var actualResult = await client.GetActivityByIdAsync(12, default);
+        _ = await activitiesClient.GetActivitiesAsync(default);
 
-        actualResult.Should().BeNull();
+        var invokedWith = mockHttpClient.MessageHandler.InvokedWithRequest;
+        invokedWith.Should().NotBeNull();
+        invokedWith!.RequestUri!.ToString().Should().BeEquivalentTo(expectedUri);
     }
 }

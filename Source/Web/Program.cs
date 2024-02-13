@@ -37,6 +37,7 @@ try
 
     app.MapEndpoints();
 
+    app.UseExceptionHandler(opt => { });
     app.UseHttpsRedirection();
     app.UseSerilogRequestLogging();
     app.Run();
