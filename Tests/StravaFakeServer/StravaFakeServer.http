@@ -3,4 +3,11 @@
 GET {{url}}/api/v3/activities/123
 
 ###
+GET {{url}}/api/v3/athlete/activities
+Authorization: Bearer 1230120laksdjflkajsdlfj1
+
+###
 GET {{url}}/generate-event
+
+###
+POST {{url}}/oauth/token

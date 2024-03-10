@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using TrainingLogger.Infrastructure.Strava.Models;
 using TrainingLogger.StravaFakeServer;
 using TrainingLogger.StravaFakeServer.Generators;
 
@@ -21,6 +22,29 @@ app.MapGet("api/v3/activities/{id}", ([FromRoute] long id) =>
         .Generate();
 
     return Results.Ok(activity);
+}).RequireAuthorization();
+
+app.MapGet("api/v3/athlete/activities", () => 
+{
+    ActivityFaker activityFaker = new();
+
+    var activities = activityFaker.GenerateLazy(30).ToList();
+
+    return Results.Ok(activities);
+}).RequireAuthorization();
+
+app.MapPost("oauth/token", () =>
+{
+    var accessToken = new ApiAccessToken()
+    {
+        AccessToken = Guid.NewGuid().ToString(),
+        RefreshToken = Guid.NewGuid().ToString(),
+        ExpiresAt = (int)DateTimeOffset.UtcNow.AddHours(5).ToUnixTimeSeconds(),
+        ExpiresIn = 1222,
+        Id = Guid.NewGuid()
+    };
+
+    return Results.Ok(accessToken);
 });
 
 app.MapGet("generate-event", () =>

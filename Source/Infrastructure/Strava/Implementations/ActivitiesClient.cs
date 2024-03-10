@@ -1,7 +1,6 @@
 ﻿using Flurl;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
+using System.Net.Http.Json;
 using TrainingLogger.Core.Contracts;
 using TrainingLogger.Core.DTOs;
 
@@ -9,26 +8,22 @@ namespace TrainingLogger.Infrastructure.Strava.Implementations;
 
 internal sealed class ActivitiesClient(
     IHttpClientFactory httpClientFactory, 
-    IOptions<StravaOptions> options, 
-    ILogger<ActivitiesClient> logger) : IActivitiesClient
+    IOptions<StravaOptions> options) : IActivitiesClient
 {
     private readonly IOptions<StravaOptions> _options = options;
-    private readonly ILogger<ActivitiesClient> _logger = logger;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-    public async Task<ActivityDto?> GetActivityByIdAsync(long id, CancellationToken token) {
+    public async Task<ActivityDto?> GetActivityByIdAsync(long id, CancellationToken token) 
+    {
         var httpClient = _httpClientFactory.CreateClient(Consts.StravaClientName);
         var requestPath = _options.Value.GetActivityByIdPart.AppendPathSegment(id);
-        var result = await httpClient.GetAsync(requestPath, token);
+        return await httpClient.GetFromJsonAsync<ActivityDto>(requestPath, token);
+    }
 
-        if (!result.IsSuccessStatusCode) {
-            _logger.LogError(result.ReasonPhrase);
-            return null;
-        }
-
-        string content = await result.Content.ReadAsStringAsync(token);
-        var activityDto = JsonSerializer.Deserialize<ActivityDto>(content);
-
-        return activityDto;
+    public async Task<IEnumerable<ActivityDto>> GetActivitiesAsync(DateTimeOffset? from = null, CancellationToken token = default)
+    {
+        var httpClient = _httpClientFactory.CreateClient(Consts.StravaClientName);
+        var requestPath = _options.Value.GetActivitiesPart;
+        return await httpClient.GetFromJsonAsync<IEnumerable<ActivityDto>>(requestPath, token) ?? Array.Empty<ActivityDto>();
     }
 }

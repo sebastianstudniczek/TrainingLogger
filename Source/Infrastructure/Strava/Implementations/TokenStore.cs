@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Flurl;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
@@ -40,51 +41,62 @@ internal sealed class TokenStore(
         async (cacheEntry) =>
         {
             var savedToken = await _dbContext
-                .RefreshTokens
+                .ApiAccessTokens
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (savedToken is null)
+            if (savedToken?.ExpiresAt > unixTimeSeconds)
+            {
+                return savedToken;
+            }
+
+            var refreshedToken = await GetRefreshedToken(_clientCredentials.RefreshToken, cancellationToken);
+            
+            if (refreshedToken is null)
             {
                 cacheEntry.Dispose();
                 return null;
             }
 
-            if (savedToken.ExpiresAt > unixTimeSeconds)
+            if (savedToken is null)
             {
-                return savedToken;
-            }
-
-            var refreshedToken = await GetRefreshedToken(savedToken.RefreshToken, cancellationToken);
-
-            if (refreshedToken is null)
+                await _dbContext.ApiAccessTokens.AddAsync(refreshedToken, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            } 
+            else
             {
-                return null;
+                await _dbContext
+                    .ApiAccessTokens
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.AccessToken, refreshedToken.AccessToken)
+                        .SetProperty(x => x.RefreshToken, refreshedToken.RefreshToken)
+                        .SetProperty(x => x.ExpiresIn, refreshedToken.ExpiresIn)
+                        .SetProperty(x => x.ExpiresAt, refreshedToken.ExpiresAt),
+                        cancellationToken);
             }
-
-            await _dbContext
-                .RefreshTokens
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.AccessToken, refreshedToken.AccessToken)
-                    .SetProperty(x => x.RefreshToken, refreshedToken.RefreshToken)
-                    .SetProperty(x => x.ExpiresIn, refreshedToken.ExpiresIn)
-                    .SetProperty(x => x.ExpiresAt, refreshedToken.ExpiresAt),
-                    cancellationToken);
 
             return refreshedToken;
         };
 
-
     private async Task<ApiAccessToken?> GetRefreshedToken(string refreshToken, CancellationToken token)
     {
-        var stravaClient = _httpClientFactory.CreateClient(Consts.StravaClientName);
+        var httpClient = _httpClientFactory.CreateClient();
         var request = new TokenExchangeRequest(_clientCredentials.Id, _clientCredentials.Secret, refreshToken);
         var serializerOptios = new JsonSerializerOptions()
         {
             PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
         };
 
-        var response = await stravaClient.PostAsJsonAsync(_stravaOptions.TokenExchangePart, request, serializerOptios, token);
-        var accessToken = await response.Content.ReadFromJsonAsync<ApiAccessToken>(token);
+        var requestUri = _stravaOptions.BaseUri
+            .AppendPathSegment(_stravaOptions.TokenExchangePart)
+            .AppendQueryParam("client_id", request.ClientId)
+            .AppendQueryParam("client_secret", request.ClientSecret)
+            .AppendQueryParam("grant_type", "refresh_token")
+            .AppendQueryParam("refresh_token", request.RefreshToken);
+
+        var response = await httpClient.PostAsync(requestUri, null, cancellationToken: token);
+        response.EnsureSuccessStatusCode();
+
+        var accessToken = await response.Content.ReadFromJsonAsync<ApiAccessToken>(serializerOptios,token);
 
         return accessToken;
     }

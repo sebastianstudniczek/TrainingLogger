@@ -8,7 +8,7 @@ namespace TrainingLogger.Infrastructure.EF;
 
 internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options), IApplicationDbContext
 {
-    public DbSet<ApiAccessToken> RefreshTokens { get; set; }
+    public DbSet<ApiAccessToken> ApiAccessTokens { get; set; }
     public DbSet<Activity> Activities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

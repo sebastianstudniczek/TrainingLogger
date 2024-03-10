@@ -5,8 +5,10 @@ using Polly;
 using Polly.Extensions.Http;
 using TrainingLogger.Core.Contracts;
 using TrainingLogger.Infrastructure.EF;
+using TrainingLogger.Infrastructure.Exceptions;
 using TrainingLogger.Infrastructure.Notifications;
 using TrainingLogger.Infrastructure.Notifications.Implementations;
+using TrainingLogger.Infrastructure.Services;
 using TrainingLogger.Infrastructure.Strava;
 using TrainingLogger.Infrastructure.Strava.Implementations;
 using TrainingLogger.Infrastructure.Strava.Interfaces;
@@ -22,7 +24,9 @@ public static class Extensions
             .AddStrava(configuration)
             .AddPostgres(configuration)
             .AddScoped<INotificationDispatcher, NotificationDispatcher>()
-            .AddScoped<IActivitiesClient, ActivitiesClient>();
+            .AddScoped<IActivitiesClient, ActivitiesClient>()
+            .AddExceptionHandler<GlobalExceptionHandler>()
+            .AddHostedService<AppInitializer>();
 
         return services;
     }

@@ -12,7 +12,7 @@ using TrainingLogger.Infrastructure.EF;
 namespace TrainingLogger.Infrastructure.EF.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240210190628_Init")]
+    [Migration("20240218182347_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -60,7 +60,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("StartDateLocal")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -89,7 +89,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("ApiAccessTokens");
                 });
 #pragma warning restore 612, 618
         }

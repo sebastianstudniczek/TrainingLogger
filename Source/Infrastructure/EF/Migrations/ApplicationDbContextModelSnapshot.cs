@@ -57,7 +57,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("StartDateLocal")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -86,7 +86,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("ApiAccessTokens");
                 });
 #pragma warning restore 612, 618
         }

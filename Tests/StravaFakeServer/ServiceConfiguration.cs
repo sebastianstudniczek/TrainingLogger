@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.Extensions.Options;
 using TrainingLogger.Shared;
+using TrainingLogger.StravaFakeServer.Auth;
 
 namespace TrainingLogger.StravaFakeServer;
 
@@ -25,6 +27,14 @@ public static class ServiceConfiguration
         {
             services.AddHostedService<ActivityPublisher>();
         }
+
+        services
+            .AddAuthentication()
+            .AddScheme<BearerTokenOptions, SimpleBearerAuthenticationHandler>(BearerTokenDefaults.AuthenticationScheme, null);
+
+        services
+            .AddAuthorization()
+            .AddAuthorizationBuilder();
 
         return services;
     }

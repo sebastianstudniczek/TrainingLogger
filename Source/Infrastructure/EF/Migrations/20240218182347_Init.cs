@@ -24,7 +24,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
                     ElapsedTime = table.Column<int>(type: "integer", nullable: false),
                     SportType = table.Column<int>(type: "integer", nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    StartDateLocal = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    StartDateLocal = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Calories = table.Column<double>(type: "double precision", nullable: false)
                 },
@@ -34,7 +34,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshTokens",
+                name: "ApiAccessTokens",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -45,7 +45,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.PrimaryKey("PK_ApiAccessTokens", x => x.Id);
                 });
         }
 
@@ -56,7 +56,7 @@ namespace TrainingLogger.Infrastructure.EF.Migrations
                 name: "Activities");
 
             migrationBuilder.DropTable(
-                name: "RefreshTokens");
+                name: "ApiAccessTokens");
         }
     }
 }

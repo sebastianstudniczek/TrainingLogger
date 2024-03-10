@@ -2,7 +2,7 @@
 
 namespace TrainingLogger.Core.DTOs;
 
-internal static class MappingExtensions
+public static class MappingExtensions
 {
     public static Activity AsEntity(this ActivityDto dto)
         => new()
